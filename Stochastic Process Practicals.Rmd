@@ -1,0 +1,350 @@
+---
+title: "Stochastic Process"
+author: "2104_Mayuri Bari"
+date: "13/09/2022"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+# 1. Calculate n-step Transition Probability
+
+1.1) Consider a finite Markov Chain {Xn,n ≥ 0} with state space S = {1,2} and transition probability
+matrix(TPM) P1 as given below and initial probability distribution is [α1 = 0.35,α2 = 0.65]. Obtain
+the following terms.
+i) P^(2)12  ii) P^(4)11  iii) P(X27 = 1|X17 = 2) iv) P(X5 = 1) v) P(X8 = 2)
+
+  
+```{r}
+
+# Que 1
+library(expm)
+a=matrix(c(0.35,0.65),ncol=1,byrow = T)
+P=matrix(c(0.7,0.3,0.4,0.6),ncol=2,byrow = T)
+PT=c("P_12^2 = ","P_22^4= ","P_21^10= ","P(X_5= 1) = ","P(X_8= 2) = ")
+Pr =c((P%^%2)[1,2],(P%^%4)[2,2],(P%^%10)[2,1],(t(a)%*%(P%^%5))[1],
+(t(a)%*%(P%^%8))[2])
+data.frame(PT,Pr)
+
+
+```
+
+1.2) Consider a finite Markov Chain {Xn,n ≥ 0} with state space S = {0,1,2,3} and TPM P2 as given
+below. Obtain the following terms.
+i) P^(8)11 ii) P(X8 = 2|X3 = 2) iii) P(X4 = 2) iv) P(X6 = 2)
+where initial probability distribution is [α0,α1,α2,α3] = [0.1,0.2,0.3,0.4]
+
+```{r}
+#Que2
+library(expm)
+a=matrix(c(0.1,0.2,0.3,0.4),ncol=1,byrow = T)
+P=matrix(c(0.3,0.5,0.1,0.1,0.1,0.6,0.1,0.2,0,0.5,0.5,0,0,0.3,0.2,0.5),
+ncol=4,byrow = T)
+PT=c("P_11^8 = ","P_22^5 = ","P(X_4 = 2) = ","P(X_6 = 2) = ")
+Pr =c((P%^%8)[1,1],(P%^%5)[2,2],(t(a)%*%(P%^%4))[2],(t(a)%*%(P%^%6))[2])
+data.frame(PT,Pr)
+```
+# 2_Realization_of_Markov_Chain
+2.1)Consider a finite Markov Chain {Xn,n ∈ N} with state space S = {1,2,3,4} and TPM is P1 and initial probabilities are α = [α1,α2,α3,α4] = [0.1,0.2,0.3,0.4]. Generate the above Markov Chain up to n=5. (i.e. Obtain the realization X0,X1,··· ,X5)
+
+
+```{r}
+
+#Que 1
+s=seq(1,4,1)
+a=matrix(c(0.1, 0.2, 0.3, 0.4),ncol=1,byrow = T)
+P=matrix(c(.5,.5,0,0,0,.3,.3,.4,.2,.2,.4,.2,1,0,0,0),ncol=4,byrow = T)
+x=rep(0, 5)
+x[1]=sample(s,1,prob = a);
+x[1]
+for (i in 2: 5)
+{
+x[i]=sample(s,1,prob = P[x[i-1],]);
+}
+x
+
+
+```
+
+2.2) Consider a finite Markov Chain {Xn,n ∈ N} with state space S = {1,2,3} and transition probability matrix is P2 and initial probabilities are α = [0.3,0.5,0.2] Generate the above Markov Chain up to n = 5.
+
+```{r}
+#Que 2
+s=seq(1,3,1)
+a=matrix(c(0.3,0.5,0.2),ncol=1,byrow = T)
+P=matrix(c(0.3,0.2,0.5,0.2,0.5,0.3,0.3,0.4,0.3),ncol=3,byrow = T)
+x=rep(0,5)
+x[1]=sample(s,1,replace=T,prob = a);
+x[1]
+for (i in 2:5)
+{
+x[i]=sample(s,1,replace=T,prob = P[x[i-1],]);
+}
+x
+```
+
+# 3 Simulation of Random walk
+3.1) Consider a finite Markov Chain {Xn,n ∈ N} with state space S = 0,1,2,3,4 and TPM is P1 and initial probabilities are α = [α0,α1,α2,α3,α4] = [0.1,0.2,0.3,0.2,0.2]. Simulate Xn up to n = 5.
+
+```{r}
+#Que 1
+Y=c(0,1,2,3,4)
+S=seq(1:5);
+alpha=c(.1,.2,.3,.2,.2)
+n=5;
+x=c(0,n+1);
+x[1]=sample(S,1,prob=alpha)
+P=matrix(c(1,0,0,0,0,0.4,0,0.6,0,0,0,0.5,
+
+0,.5,0,0,0,0.2,0,0.8,0,0,0,0,1),nrow=5,byrow=TRUE)
+
+for (i in 1:n)
+{x[i+1]=sample(S,1,prob=P[x[i],])}
+Y[x]
+```
+```{r}
+#Que 2
+Y=c(0,1,2,3,4)
+S=seq(1:5);
+alpha=c(.1,.2,.3,.2,.2)
+n=7;
+x=c(0,n+1);
+x[1]=sample(S,1,prob=alpha)
+P=matrix(c(0.3,0.7,0,0,0,0.2,0,0.8,0,0,0,0.4,0,0.6,0,0,
+0,0.3,0,0.7,0,0,0,0.6,0.4),nrow=5,byrow=TRUE)
+for (i in 1:n)
+{x[i+1]=sample(S,1,prob=P[x[i],])}
+Y[x]
+
+```
+3.3)Consider a random walk {Xn,n ∈ N} with state space S = {··· ,−3,−2,−1,0,1,2,3,···}. Simulate Xn
+up to n = 7 where P[yi = 1] = 0.55 = 1−P[yi = −1] and X0 = 0
+
+```{r}
+# Que 3
+Y=c(1,-1);
+pY=c(.55,.45);
+Yi=sample(Y,7,replace=TRUE,prob=pY)
+Xn=cumsum(Yi);Xn
+
+```
+
+# 4 Calculation of limiting distribution of Markov Chain
+
+4.1) Consider a finite Markov chain {Xn,n ∈ N} with state space S = {0,1,2,3} and TPM is p.
+Find the limiting probabilities of this Markov chain.
+
+```{r}
+#Que1 
+p=matrix(c(0.5,0.25,0.25,0,0,0.25,0.25,0.5,0.25,0.5,0.25,0,0.25,0.25,0.25,0.25),ncol=4,byrow = T);
+zapsmall((p))
+k=nrow(p)
+A=rbind(diag(rep(1,k))-t(p),rep(1,k))
+b=matrix(c(rep(0,k),1),ncol=1)
+solve(t(A)%*%A,t(A)%*%b)
+
+
+```
+
+4.2)Consider a Markov chain {Xn,n ∈ N} with state space S = {0,1,2,3,4}. Suppose P04 = 1 and suppose that when the chain is in state i,i > 0, the next state is equally likely to be any of the states
+0,1,··· ,i −1. Find the limiting probabilities of this Markov chain.
+```{r}
+#Que 2
+p=matrix(c(0,0,0,0,1,1,0,0,0,0,0.5,0.5,0,0,0,1/3,1/3,1/3,0,0,1/4,1/4,1/4,1/4,0),ncol=5,byrow = T);
+zapsmall((p))
+k=nrow(p)
+A=rbind(diag(rep(1,k))-t(p),rep(1,k))
+b=matrix(c(rep(0,k),1),ncol=1)
+solve(t(A)%*%A,t(A)%*%b)
+
+
+```
+#5 Realization of Bienayme-Galton-Watson Branching Process
+
+5.1) Let {Xn,n ∈ N} be a Bienayme-Galton-Watson Branching Process with offspring distribution given
+by P[ξ = 0] = 0.2,P[ξ = 1] = 0.3,P[ξ = 2] = 0.2,P[ξ = 3] = 0.3. If X0 = 2,then realize X1,X2,··· ,X5
+where Xn denote size of n
+th generation.
+
+
+```{r}
+z=c(0,1,2,3)
+pz=c(.2,.3,.2,.3)
+x=c(rep(0,6))
+x[1]=2
+for (i in 1:5)
+x[i+1]=sum(sample(z,prob=pz,replace=T,size=x[i]))
+x
+```
+5.2) Let {Xn,n ∈ N} be a Bienayme-Galton-Watson Branching Process with offspring distribution specified by probability generating function as g (s) = 0.25 + 0.35s + 0.3s^2+0.1s^3.
+If X0 = 3 then obtain realization of {Xn,n ∈ N} for n = 0,1,··· ,8, Xn denote size of n
+th generation.
+```{r}
+z=c(0,1,2,3)
+pz=c(.25,.35,.3,.1)
+x=c(rep(0,9))
+x[1]=3
+for (i in 1:8)
+x[i+1]=sum(sample(z,prob=pz,replace=T,size=x[i]))
+x
+```
+5.3) Let {Xn,n ∈ N} be a Bienayme-Galton-Watson Branching Process with offspring distribution given
+by P[ξ = 0] = 0.1,P[ξ = 1] = 0.2,P[ξ = 2] = 0.15,P[ξ = 3] = 0.2,P[ξ = 4] = 0.25,P[ξ = 5] = 0.1.If
+X0 = 1,then realize X1,X2,··· ,X7 where Xn denote size of n
+th generation.
+```{r}
+z=c(0,1,2,3,4,5)
+pz=c(0.1,0.2,0.15,0.2,0.25,0.1)
+x=c(rep(0,8))
+x[1]=1
+for (i in 1:7)
+x[i+1]=sum(sample(z,prob=pz,replace=T,size=x[i]))
+x
+```
+
+
+
+#6_Simulation_Of_Poisson_process
+
+6.1)Let {N(t),t ≥ 0} be the Poisson Process with rate λ = x. Simulate the interarrival times and hence waiting times up to t = y. Depict it graphically for 0 ≤ t ≤ y.
+i) x = 2 and y = 5 ii) x = 4 and y = 9.5 iii) x = 9 and y = 7
+
+```{r}
+PoisProc=function(lambda,time)
+{
+inter=rexp(20,rate=lambda)
+arr=cumsum(inter)
+arr=arr[arr<time];n=length(arr);
+t1=c(0,arr);
+t2=c(arr,time)
+x=data.frame(t1,".."=rep("<=t<",n+1),t2,Nt=seq(0,n));
+print(x);
+return(x)
+}
+```
+
+
+
+```{r}
+lambda=2; time=5;
+x=PoisProc(lambda,time)
+```
+```{r}
+lambda=4; time=9.5;
+x=PoisProc(lambda,time)
+
+```
+
+6.2)Simulate the Poisson process at time points t with rate λ without simulating its interarrival time.
+i) t = 1.5,2.2,3.8,7.5,8.8 & λ = 1 ii) t = 1.23,2.21,2.83,6.05,7.08,17.8 & λ = 1.5
+```{r}
+SimuPoiss=function(lambda,t)
+{
+n=length(t);
+Nt=rep(0,n)
+Nt[1]=rpois(1,lambda*t[1])
+for (i in 2:n)
+{Nt[i]=rpois(1,lambda*(t[i]-t[i-1]))}
+Nt=cumsum(Nt)
+x=data.frame(t,Nt)
+print(x)
+return(x)
+}
+#i)
+lambda=1;t=c(1.5,2.2,3.8,7.5,8.8);
+x=SimuPoiss(lambda,t)
+```
+```{r}
+#ii)
+lambda=1.5;t=c(1.23,2.21,2.83,6.05,7.08,17.8);
+x=SimuPoiss(lambda,t)
+```
+
+6.3) If {N(t),t ≥ 0} is the Poisson Process & N(x) = y. Simulate Poisson process for 0 ≤ t ≤ x i) x = 6 and y = 5
+```{r}
+SimPoiss=function(n,t)
+{
+arr=sort(runif(n,0,t));
+t1=c(0,arr);
+t2=c(arr,t)
+x=data.frame(t1,".."=rep("<=t<",n+1),t2,Nt=seq(0,n))
+print(x)
+return(x)
+}
+n=5;t=6;
+x=SimPoiss(n,t)
+
+```
+# 7 Simulation of Compound Poisson Process
+
+7.1) In a bank, suppose that customer arrives at an exponential rate λ = 1 per minute for depositing
+or withdrawing amount. Suppose the distribution of amount to be deposited or withdrawn has
+distribution N(µ = 1000,σ2 = 400). Simulate the compound poisson process of the amount at
+counter from 11.00 am to 11.15 am. Consider initial amount at counter is Rs.10000/-.
+
+```{r}
+lambda=1; time=15;
+inter=rexp(30,rate=lambda)
+arr=cumsum(inter)
+arr=arr[arr<time];n=length(arr);
+x=rnorm(n,1000,20); Zt=c(10000,10000+cumsum(x))
+t1=c(0,arr);
+t2=c(arr,time)
+data.frame(t1,".."=rep("<=t<",n+1),t2,Nt=seq(0,n),Zt)
+
+```
+#8 Simulation of M/M/1 Queuing System
+
+8.1. In a bank, suppose that customer arrives at an exponential rate λ = 1 per minute for deposit some amount and there is only one server for amount deposition which provide service with exponential rate µ = 1.3 per minute. Simulate M/M/1 Queuing System from 11.00 am to 11.15 am. i.e.
+simulate {X(t),t ≥ 0} where X(t) denotes number of customers in the bank at time t.
+
+```{r}
+lambda=1; mu=1.3; t=15;
+inter=rexp(30,lambda);
+arr=cumsum(inter);
+arr=arr[arr<t];
+n1=length(arr);
+ser=rexp(n1,mu);
+dep=rep(0,n1);
+dep[1]=arr[1]+ser[1];
+for (i in 2:n1)
+{dep[i]=max(arr[i],dep[i-1])+ser[i];}
+dep=dep[dep<t];
+start=sort(c(0,arr,dep));n=length(start);
+end=sort(c(t,arr,dep));
+Nt=rep(0,n);
+for (i in 2:n)
+{Nt[i]=sum(arr<=start[i])-sum(dep<=start[i])}
+d1=data.frame(start,to=rep(" <= t < ",n),end,Nt)
+d1
+
+```
+#9 Simulation of Renewal Process
+
+9.1) Consider a renewal process {N(t),t ≥ 0} having following distribution for inter-arrival times. Then simulate the renewal process for 0 ≤ t ≤ y.
+
+a) N(µ = 2,σ2 = 0.0625) & y = 5      b) Gamma(α = 2,β = 2) & y = 10
+c) LN(µ = 0.5,σ2 = 0.0025) & y = 7   d) Uniform(0,5) & y = 15
+
+```{r}
+#lambda=2; t=5;inter=rexp(n=2*lambda*t,rate=lambda);
+#mu=2;t=5;inter=rnorm(n=20,mu,sqrt(0.0625))
+#alpha=2;beta=2;t=10;inter=rgamma(n=200,alpha,beta);
+mu=0.5;sig2=0.0025;t=5;inter=rlnorm(n=20,mu,sqrt(sig2))
+#a=0; b=5; t=15; inter=runif(n=200,a,b)
+arr=cumsum(inter);
+arr=arr[arr<t]
+n=length(arr);
+t1=c(0,arr)
+ti=rep("<=t<",n+1)
+t2=c(arr,t)
+Nt=seq(0,n);
+dat=data.frame("start"=round(t1,3),ti,"to"=round(t2,3),Nt)
+dat
+plot(t1,Nt,type="S")
+
+```
+
+
+
+
